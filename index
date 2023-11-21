@@ -1,0 +1,371 @@
+[17:26, 20/11/2023] tasya: <!--HTML-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title> ORCE</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1> Student Management</h1>
+        </header>
+
+        <main>
+            <ul id="student-list">
+                <?php foreach ($students as $student) : ?>
+                    <li>
+                        <span><?= $student['name']; ?></span>
+                        <span><?= $student['major']; ?></span>
+                        <button onclick="openEditForm(<?= $student['id']; ?>)">Edit</button>
+                        <button onclick="deleteStudent(<?= $student['…
+[22:33, 21/11/2023] tasya: <!-- Natasya 121140052-->
+
+<!--HTML-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>121140052_Natasya</title>
+    <!--CSS-->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #0066cc;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #004080;
+        }
+
+        #add-form, #edit-form {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-container {
+            margin-top: 20px;
+        }
+
+        .form-container input {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+        }
+
+        .form-container button {
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 5px;
+        }
+
+        .form-container button:hover {
+            background-color: #004080;
+        }
+
+        .student-name {
+            font-weight: bold;
+            color: #0066cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>FORM DATA MAHASISWA</h1>
+        </header>
+
+        <main>
+            <ul id="student-list">
+                <?php foreach ($students as $student): ?>
+                    <li>
+                        <span><?= $student['name']; ?></span>
+                        <span><?= $student['major']; ?></span>
+                        <button onclick="openEditForm('<?= $student['nim']; ?>')">Edit</button>
+                        <button onclick="deleteStudent('<?= $student['nim']; ?>')">Hapus</button>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+
+            <div class="actions">
+                <button onclick="openAddForm()">Tambah Data</button>
+            </div>
+
+            <div id="add-form" class="hidden form-container">
+                <h2>Tambah Data Mahasiswa</h2>
+                <!-- Form tambah data mahasiswa -->
+                <form onsubmit="addStudent(); return false;">
+                    <input type="text" id="add-nim" placeholder="NIM" required>
+                    <input type="text" id="add-name" placeholder="Nama" required>
+                    <input type="text" id="add-major" placeholder="Prodi" required>
+                    <button type="submit">Tambah</button>
+                </form>
+            </div>
+
+            <div id="edit-form" class="hidden form-container">
+                <h2>Edit Data Mahasiswa</h2>
+                <!-- Form edit data mahasiswa -->
+                <form onsubmit="editStudent(); return false;">
+                    <input type="text" id="edit-nim" placeholder="NIM" required>
+                    <input type="text" id="edit-name" placeholder="Nama" required>
+                    <input type="text" id="edit-major" placeholder="Prodi" required>
+                    <button type="submit">Simpan</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- JS -->
+    <script>
+        let addActive = false;
+
+        function openAddForm() {
+            if (!addActive) {
+                document.getElementById("add-form").classList.remove("hidden")
+                addActive = true;
+            } else {
+                document.getElementById("add-form").classList.add("hidden")
+                addActive = false;
+            }
+        }
+
+        function openEditForm(nim) {
+            // Fetch data mahasiswa berdasarkan NIM dan isi form edit
+            fetch(`get_student.php?nim=${nim}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("edit-nim").value = data.nim;
+                    document.getElementById("edit-name").value = data.name;
+                    document.getElementById("edit-major").value = data.major;
+                    document.getElementById("edit-form").classList.remove("hidden");
+                })
+                .catch(error => console.error("Error fetching student data:", error));
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadStudentData();
+        });
+
+        function loadStudentData() {
+            fetchStudentData().then(data => {
+                const studentList = document.getElementById("student-list");
+                studentList.innerHTML = ""; //clear data
+
+                data.forEach(student => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <span>${student.name}</span>
+                        <span>${student.major}</span>
+                        <button onclick="openEditForm('${student.nim}')">Edit</button>
+                        <button onclick="deleteStudent('${student.nim}')">Hapus</button>
+                    `;
+                    studentList.appendChild(li);
+                });
+            });
+        }
+
+        function addStudent() {
+            const nim = document.getElementById("add-nim").value;
+            const name = document.getElementById("add-name").value;
+            const major = document.getElementById("add-major").value;
+
+            console.log("Data to be added:", nim, name, major);
+
+            fetch("add_student.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `nim=${nim}&name=${name}&major=${major}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Student added successfully:", data);
+                    document.getElementById("add-form").classList.add("hidden");
+                    loadStudentData();
+                })
+                .catch(error => console.error("Error adding student:", error));
+        }
+
+        function editStudent() {
+            const nim = document.getElementById("edit-nim").value;
+            const name = document.getElementById("edit-name").value;
+            const major = document.getElementById("edit-major").value;
+
+            fetch("edit_student.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `nim=${nim}&name=${name}&major=${major}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Student edited successfully:", data);
+                    document.getElementById("edit-form").classList.add("hidden");
+                    loadStudentData();
+                })
+                .catch(error => console.error("Error editing student:", error));
+        }
+
+        function deleteStudent(nim) {
+            fetch(`delete_student.php?nim=${nim}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Student deleted successfully:", data);
+                    loadStudentData();
+                })
+                .catch(error => console.error("Error deleting student:", error));
+        }
+
+        function fetchStudentData() {
+            return fetch("fetch_students.php")
+                .then(response => response.json())
+                .catch(error => console.error("Error fetching student data:", error));
+        }
+    </script>
+</body>
+</html>
+
+<!-- PHP - get_student.php -->
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "formdata";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['nim'])) {
+    $nim = $_GET['nim'];
+
+    $sql = "SELECT * FROM students WHERE nim='$nim'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $data = $result->fetch_assoc();
+        echo json_encode($data);
+    } else {
+        echo json_encode(['error' => 'Student not found']);
+    }
+}
+
+$conn->close();
+?>
+
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "formdata";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nim = $_POST['nim'];
+    $name = $_POST['name'];
+    $major = $_POST['major'];
+
+    $sql = "UPDATE students SET name='$name', major='$major' WHERE nim='$nim'";
+    if ($conn->query($sql) === TRUE) {
+        echo json_encode(['status' => 'success', 'message' => 'Student updated successfully']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Error updating student']);
+    }
+}
+
+$conn->close();
+?>
+
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "formdata";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['nim'])) {
+    $nim = $_GET['nim'];
+
+    $sql = "DELETE FROM students WHERE nim='$nim'";
+    if ($conn->query($sql) === TRUE) {
+        echo json_encode(['status' => 'success', 'message' => 'Student deleted successfully']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Error deleting student: ' . $conn->error]);
+        die($conn->error);
+    }
+}
+
+$conn->close();
+?>
